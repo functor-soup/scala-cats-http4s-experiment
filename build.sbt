@@ -8,7 +8,8 @@ scalaVersion := "2.12.1"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 
 // Uncomment to use Akka
-libraryDependencies ++= Seq("org.typelevel" %% "cats" % "0.9.0")
+libraryDependencies ++= Seq("org.typelevel" %% "cats" % "0.9.0",
+                            "org.http4s" %% "http4s-core" % "0.17.0-M2")
 
 val circeVersion = "0.7.0"
 
