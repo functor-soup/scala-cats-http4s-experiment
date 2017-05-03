@@ -20,9 +20,9 @@ object Hello extends StreamApp {
   val httpClient = PooledHttp1Client()
 
   def kik(url: String):Task[String] = {
-    val egg = "[LOG] client issued a get request\n".tell
+    val egg = "[LOG] Client issued a Get request to / \n".tell
       .map(_ => httpClient.expect[String](Uri.unsafeFromString(url)))
-      .flatMap(x => for { _ <- s"[LOG] response recieved a $x \n".tell} yield x)
+      .flatMap(x => { for { _ <- s"[LOG] response recieved a ${x.unsafeAttemptRun} \n".tell} yield x })
 
    val (log, reg) = egg.run
    println(log)
