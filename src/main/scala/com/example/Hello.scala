@@ -12,6 +12,7 @@ import constants.Constants
 import cats.syntax.applicative._
 import cats.data.Writer
 import org.http4s.client.Client
+import Logger.Printer._
 
 object Hello extends StreamApp {
 
@@ -20,9 +21,11 @@ object Hello extends StreamApp {
   val httpClient = PooledHttp1Client()
 
   def kik(url: String):Task[String] = {
-    val egg = "[LOG] Client issued a Get request to / \n".tell
+    val egg = info("Client issued a Get request to / ").tell
       .map(_ => httpClient.expect[String](Uri.unsafeFromString(url)))
-      .flatMap(x => { for { _ <- s"[LOG] response recieved a ${x.unsafeAttemptRun} \n".tell} yield x })
+      .flatMap(x => 
+         { for { _ <- info(s"response recieved a ${x.unsafeAttemptRun} \n").tell} yield x
+         })
 
    val (log, reg) = egg.run
    println(log)
