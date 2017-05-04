@@ -8,17 +8,10 @@ scalaVersion := "2.12.1"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.0" % "test"
 
 // Uncomment to use Akka
-libraryDependencies ++= Seq("org.typelevel" %% "cats" % "0.9.0",
-                            "org.http4s" %% "http4s-core" % "0.17.0-M2",
-                            "org.http4s" %% "http4s-blaze-server" % "0.17.0-M2",
-                            "org.http4s" %% "http4s-blaze-client" % "0.17.0-M2",
-                            "org.http4s" %% "http4s-dsl" % "0.17.0-M2")
+libraryDependencies ++= Seq("org.scalaz" %% "scalaz-core" % "7.2.12",
+                            "org.http4s" %% "http4s-core" % "0.15.11a",
+                            "org.http4s" %% "http4s-blaze-server" % "0.15.11a",
+                            "org.http4s" %% "http4s-blaze-client" % "0.15.11a",
+                            "org.http4s" %% "http4s-dsl" % "0.15.11a")
 
-val circeVersion = "0.7.0"
-
-libraryDependencies ++= Seq(
-  "io.circe" %% "circe-core",
-  "io.circe" %% "circe-generic",
-  "io.circe" %% "circe-parser"
-).map(_ % circeVersion)
 

@@ -4,42 +4,43 @@ import org.http4s._
 import org.http4s.dsl._
 import org.http4s.server.blaze._
 import org.http4s.server.syntax._
-import fs2.{Stream, Task}
-import org.http4s.util.StreamApp
 import org.http4s.client.blaze._
-import cats.implicits._
-import constants.Constants
-import cats.syntax.applicative._
-import cats.data.Writer
 import org.http4s.client.Client
+import org.http4s.server.{Server, ServerApp}
 import Logger.Printer._
+import scalaz._
+import Scalaz._
+import scalaz.concurrent.Task
+import constants.Constants
 
-object Hello extends StreamApp {
+object Hello extends ServerApp {
 
-  type Logger[A] = Writer[String,A]
+  type Logger[A] = WriterT[Task,String,A]
 
   val httpClient = PooledHttp1Client()
 
-  def kik(url: String):Task[String] = {
-    val egg = info("Client issued a Get request to / ").tell
-      .map(_ => httpClient.expect[String](Uri.unsafeFromString(url)))
-      .flatMap(x => 
-         { for { _ <- info(s"response recieved a ${x.unsafeAttemptRun} \n").tell} yield x
-         })
 
-   val (log, reg) = egg.run
+  def kik(url: String):String = {
+    val egg: Logger[String] = for {
+      _ <- WriterT.put(Task())(info("Client issued a Get request to / " ))
+      b <- WriterT.put(httpClient.expect[String](Uri.unsafeFromString(url)))("")
+      _ <- WriterT.put(Task(b))(info(s"Server served $b"))
+    } yield b
+
+   val (log, reg) = egg.run.run
    println(log)
+   println(reg)
    return reg
   }
 
   val service = HttpService {
-    case GET -> Root => kik(Constants.mainUrl).flatMap(Ok(_))
+    case GET -> Root => Ok(kik(Constants.mainUrl))
    }
 
-  override def stream(args: List[String]): Stream[Task, Nothing] = {
+  override def server(args: List[String]): Task[Server] = {
     BlazeBuilder
       .bindHttp(8080, "localhost")
       .mountService(service, "/")
-      .serve
+      .start
   }
 }
