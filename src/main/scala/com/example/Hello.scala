@@ -19,22 +19,19 @@ object Hello extends ServerApp {
 
   val httpClient = PooledHttp1Client()
 
+  def operationPlusLogging(url:String): Logger[String] = 
+        WriterT
+         .put(httpClient.expect[String](Uri.unsafeFromString(url)))(info("Client issued a Get request to / " )) 
+         .:++>> (b => info(s"Server served $b"))
 
-  def kik(url: String):String = {
-    val egg: Logger[String] = for {
-      _ <- WriterT.put(Task())(info("Client issued a Get request to / " ))
-      b <- WriterT.put(httpClient.expect[String](Uri.unsafeFromString(url)))("")
-      _ <- WriterT.put(Task(b))(info(s"Server served $b"))
-    } yield b
-
-   val (log, reg) = egg.run.run
+  def opOutput(url: String):String = {
+   val (log, reg) = (operationPlusLogging(url)).run.run
    println(log)
-   println(reg)
    return reg
   }
 
   val service = HttpService {
-    case GET -> Root => Ok(kik(Constants.mainUrl))
+    case GET -> Root => Ok(opOutput(Constants.mainUrl))
    }
 
   override def server(args: List[String]): Task[Server] = {
